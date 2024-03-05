@@ -1,41 +1,26 @@
-package org.firstinspires.ftc.teamcode;
-
-
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Webcam;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.util.EasyOpenCVWebcam;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Config
 @Autonomous(name = "PushPixelAutonomous", group = "Autonomous")
 public class PushPixelAutonomous extends LinearOpMode {
-    private static final double MAX_VELOCITY = 40; 
-    private static final double MAX_ACCELERATION = 30; 
+    private static final double MAX_VELOCITY = 40;
+    private static final double MAX_ACCELERATION = 30;
 
     // EasyOpenCV webcam
-    private OpenCvCamera webcam;
     private EasyOpenCVWebcam easyOpenCVWebcam;
 
     @Override
     public void runOpMode() {
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        OpenCvCamera webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "yourWebcamName"), hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()));
         easyOpenCVWebcam = new EasyOpenCVWebcam(webcam);
-        webcam.setPipeline(new emptyPipeline());
-
+        webcam.setPipeline(new EmptyPipeline());
 
         // Set up RoadRunner constraints
         DriveConstraints constraints = new DriveConstraints(MAX_VELOCITY, MAX_ACCELERATION);
@@ -47,17 +32,18 @@ public class PushPixelAutonomous extends LinearOpMode {
 
         waitForStart();
 
-
         easyOpenCVWebcam.startStreaming();
-
-  
 
         while (opModeIsActive()) {
             Mat frame = easyOpenCVWebcam.getFrame();
-            telementry.addLine('לא זוכר אם זה הפקודה בכלל');
-            if (pixelIsRed(frame)) {
-                
-                // להוסיף לדחוף רובוטמ מיזדיין
+            telemetry.addLine("לא זוכר אם זה הפקודה בכלל");
+
+            PixelCoordinates redPixelCoordinates = pixelIsRed(frame);
+
+            if (redPixelCoordinates != null) {
+                int x = redPixelCoordinates.x;
+                int y = redPixelCoordinates.y;
+                telemetry.addData("Red pixel found at coordinates: ", "(x: " + x + ", y: " + y + ")");
             }
 
             easyOpenCVWebcam.sendFrame(frame);
@@ -66,13 +52,35 @@ public class PushPixelAutonomous extends LinearOpMode {
         easyOpenCVWebcam.stopStreaming();
     }
 
-    private boolean pixelIsRed(Mat frame) {
-        Scalar pixelColor = frame.get(y, x);
-        return pixelColor.val[0] > 200 && pixelColor.val[1] < 100 && pixelColor.val[2] < 100;
+    private PixelCoordinates pixelIsRed(Mat frame) {
+        int width = frame.width();
+        int height = frame.height();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Scalar pixelColor = frame.get(y, x);
+    
+                if (pixelColor.val[0] > 200 && pixelColor.val[1] < 100 && pixelColor.val[2] < 100) {
+                    return new PixelCoordinates(x, y);
+                }
+            }
+        }
+        return null; 
     }
 
-    class emptyPipeline extends OpenCvPipeline {
+    static class PixelCoordinates {
+        int x;
+        int y;
+
+        PixelCoordinates(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    static class EmptyPipeline extends OpenCvPipeline {
         boolean viewportPaused;
+
         @Override
         public Mat processFrame(Mat input) {
             return input;
