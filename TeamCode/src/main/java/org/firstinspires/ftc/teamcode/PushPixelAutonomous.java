@@ -18,7 +18,7 @@ public class PushPixelAutonomous extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        OpenCvCamera webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "yourWebcamName"), hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()));
+        OpenCvCamera webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcame1"), hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()));
         easyOpenCVWebcam = new EasyOpenCVWebcam(webcam);
         webcam.setPipeline(new EmptyPipeline());
 
