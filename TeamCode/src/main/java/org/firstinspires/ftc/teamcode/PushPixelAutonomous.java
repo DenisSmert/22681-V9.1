@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode;
 
 
@@ -32,13 +31,11 @@ public class PushPixelAutonomous extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        HardwareMap hardwareMap = hardwareMap;
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(
-                hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         easyOpenCVWebcam = new EasyOpenCVWebcam(webcam);
+        webcam.setPipeline(new emptyPipeline());
+
 
         // Set up RoadRunner constraints
         DriveConstraints constraints = new DriveConstraints(MAX_VELOCITY, MAX_ACCELERATION);
@@ -57,8 +54,9 @@ public class PushPixelAutonomous extends LinearOpMode {
 
         while (opModeIsActive()) {
             Mat frame = easyOpenCVWebcam.getFrame();
-
+            telementry.addLine('לא זוכר אם זה הפקודה בכלל');
             if (pixelIsRed(frame)) {
+                
                 // להוסיף לדחוף רובוטמ מיזדיין
             }
 
@@ -71,5 +69,13 @@ public class PushPixelAutonomous extends LinearOpMode {
     private boolean pixelIsRed(Mat frame) {
         Scalar pixelColor = frame.get(y, x);
         return pixelColor.val[0] > 200 && pixelColor.val[1] < 100 && pixelColor.val[2] < 100;
+    }
+
+    class emptyPipeline extends OpenCvPipeline {
+        boolean viewportPaused;
+        @Override
+        public Mat processFrame(Mat input) {
+            return input;
+        }
     }
 }
