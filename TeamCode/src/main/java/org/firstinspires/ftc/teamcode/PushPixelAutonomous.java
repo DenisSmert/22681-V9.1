@@ -29,9 +29,9 @@ public class PushPixelAutonomous extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        OpenCvCamera webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcame1"), hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()));
-        easyOpenCVWebcam = new EasyOpenCVWebcam(webcam);
-        webcam.setPipeline(new EmptyPipeline());
+        OpenCvCamera webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam1"), hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()));
+        easyOpenCVWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam1"), cameraMonitorViewId);
+        easyOpenCVWebcam.setPipeline(new EmptyPipeline());
 
         // Set up RoadRunner constraints
         DriveConstraints constraints = new DriveConstraints(MAX_VELOCITY, MAX_ACCELERATION);
